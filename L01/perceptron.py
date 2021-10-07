@@ -1,81 +1,48 @@
 import logging
-import random
 
 import numpy as np
 
 logging.basicConfig(level=logging.INFO)
 
-# train_input = [
-#     np.array([0, 0]),
-#     np.array([1, 0]),
-#     np.array([0, 1]),
-#     np.array([1, 1]),
-# ]
-#
-# train_output = np.array([0, 0, 0, 1])
-#
-# start_weights = np.array([random.uniform(0, 0.1) for _ in range(3)])
 
-TRAIN_INPUT_SET_SIZE = 1
-train_input = []
-train_output = []
+class Perceptron:
+    def __init__(self, alpha, weights):
+        self.alpha = alpha
+        self.weights = weights  # Usage assumption: bias weight as the last weight
+        self.iteration_counter = 1
 
-for _ in range(TRAIN_INPUT_SET_SIZE):
-    train_input.append(np.array([random.uniform(-0.1, 0.1), random.uniform(-0.1, 0.1)]))
-    train_output.append(0)
-    train_input.append(np.array([random.uniform(-0.1, 0.1), random.uniform(0.9, 1.1)]))
-    train_output.append(0)
-    train_input.append(np.array([random.uniform(0.9, 1.1), random.uniform(-0.1, 0.1)]))
-    train_output.append(0)
-    train_input.append(np.array([random.uniform(0.9, 1.1), random.uniform(0.9, 1.1)]))
-    train_output.append(1)
+    def _activation_func(self, x):
+        return np.dot(x, self.weights[:-1]) + self.weights[-1]
 
-start_weights = np.array([random.uniform(0, 0.1) for _ in range(3)])
+    @staticmethod
+    def _get_perceptron_output(z):
+        return 1 if z > 0 else 0
 
+    @staticmethod
+    def _get_error(expected, actual):
+        return expected - actual
 
-ALPHA = 0.1
+    def _adjust_weights(self, error, input_data):
+        self.weights[:-1] += self.alpha * error * input_data
+        self.weights[-1] += self.alpha * error
 
+    def train(self, train_input, train_output):
+        no_errors = False
+        while not no_errors:
+            no_errors = True
 
-def activation_func(x, weights):
-    return np.dot(x, weights[:-1]) + weights[-1]
+            for x, y in zip(train_input, train_output):
+                z = self._activation_func(x)
+                perceptron_output = self._get_perceptron_output(z)
+                perceptron_error = self._get_error(expected=y, actual=perceptron_output)
+                self._adjust_weights(error=perceptron_error, input_data=x)
+                if perceptron_error != 0:
+                    no_errors = False
 
+        logging.info(f"Training finished in {self.iteration_counter} iterations")
+        logging.info(f"Bias: {self.weights[-1]}")
+        logging.info(f"Weights: {self.weights[:-1]}")
 
-def get_perceptron_output(z):
-    return 1 if z > 0 else 0
-
-
-def get_error(expected, actual):
-    return expected - actual
-
-
-def adjust_weigths(alpha, weights, error, input_data):
-    weights[:-1] += alpha * error * input_data
-    weights[-1] += alpha * error
-
-    return weights
-
-
-if __name__ == '__main__':
-    # Usage assumption: bias weight as the last weight
-    no_errors = False
-    current_weights = start_weights
-
-    iteration_counter = 0
-    while not no_errors:
-        logging.info(f"Iteration no {iteration_counter}")
-        iteration_counter += 1
-        no_errors = True
-
-        for x, y in zip(train_input, train_output):
-            z = activation_func(x, current_weights)
-            perceptron_output = get_perceptron_output(z)
-            perceptron_error = get_error(expected=y, actual=perceptron_output)
-            current_weights = adjust_weigths(alpha=ALPHA, weights=current_weights, error=perceptron_error, input_data=x)
-            if perceptron_error != 0:
-                no_errors = False
-
-            logging.info(f"{y} <-> {perceptron_output}")
-
-        if no_errors:
-            logging.info(f"bias: {current_weights[-1]}")
-            logging.info(f"weights: {current_weights[:-1]}")
+    def predict(self, input_vector):
+        z = self._activation_func(input_vector)
+        return self._get_perceptron_output(z)
