@@ -49,3 +49,10 @@ class Perceptron:
     def predict(self, input_vector):
         z = self._activation_func(input_vector)
         return self._get_perceptron_output(z)
+
+
+class PerceptronBipolar(Perceptron):
+    def _get_perceptron_output(self, z):
+        if self.use_bias:
+            return 1 if z > 0 else -1
+        return 1 if z > self.weights[-1] else -1
