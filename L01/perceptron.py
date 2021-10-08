@@ -6,17 +6,22 @@ logging.basicConfig(level=logging.INFO)
 
 
 class Perceptron:
-    def __init__(self, alpha, weights):
+    def __init__(self, alpha, weights, use_bias=True):
         self.alpha = alpha
-        self.weights = weights  # Usage assumption: bias weight as the last weight
+        self.weights = weights  # Usage assumption: bias weight / theta value as the last weight
         self.iteration_counter = 1
+        self.use_bias = use_bias
 
     def _activation_func(self, x):
-        return np.dot(x, self.weights[:-1]) + self.weights[-1]
+        if self.use_bias:
+            return np.dot(x, self.weights[:-1]) + self.weights[-1]
 
-    @staticmethod
-    def _get_perceptron_output(z):
-        return 1 if z > 0 else 0
+        return np.dot(x, self.weights[:-1])
+
+    def _get_perceptron_output(self, z):
+        if self.use_bias:
+            return 1 if z > 0 else 0
+        return 1 if z > self.weights[-1] else 0
 
     @staticmethod
     def _get_error(expected, actual):
@@ -24,7 +29,8 @@ class Perceptron:
 
     def _adjust_weights(self, error, input_data):
         self.weights[:-1] += self.alpha * error * input_data
-        self.weights[-1] += self.alpha * error
+        if self.use_bias:
+            self.weights[-1] += self.alpha * error
 
     def train(self, train_input, train_output):
         no_errors = False
