@@ -29,6 +29,7 @@ class Perceptron:
     def train(self, train_input, train_output):
         no_errors = False
         while not no_errors:
+            self.iteration_counter += 1
             no_errors = True
 
             for x, y in zip(train_input, train_output):
