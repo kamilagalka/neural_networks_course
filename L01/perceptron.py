@@ -40,10 +40,6 @@ class Perceptron:
                 if perceptron_error != 0:
                     no_errors = False
 
-        logging.info(f"Training finished in {self.iteration_counter} iterations")
-        logging.info(f"Bias: {self.weights[-1]}")
-        logging.info(f"Weights: {self.weights[:-1]}")
-
     def predict(self, input_vector):
         z = self._activation_func(input_vector)
         return self._get_perceptron_output(z)
