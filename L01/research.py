@@ -58,6 +58,23 @@ def task_2():
         range_min += range_step
         range_max -= range_step
 
+    logging.info("-----------------------------")
+
+    range_min = -1
+    range_max = -0.9
+
+    while range_min < 1:
+        start_weights = np.array([random.uniform(range_min, range_max) for _ in range(3)])
+
+        p = Perceptron(ALPHA, start_weights, use_bias=True)
+        p.train(TRAIN_INPUT, TRAIN_OUTPUT)
+
+        logging.info(
+            f"Training finished in {p.iteration_counter} iterations for start weights in range: {round(range_min, 2)} - {round(range_max, 2)}")
+
+        range_min += range_step
+        range_max += range_step
+
 
 def task_3():
     logging.info("---------------TASK 3---------------")
