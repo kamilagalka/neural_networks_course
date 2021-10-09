@@ -6,7 +6,7 @@ import random
 
 logging.basicConfig(level=logging.INFO)
 
-TRAIN_INPUT_SET_SIZE = 1
+TRAIN_INPUT_SET_SIZE = 4
 ALPHA = 0.0001
 
 TRAIN_INPUT = []
@@ -62,7 +62,7 @@ def task_2():
 def task_3():
     logging.info("---------------TASK 3---------------")
 
-    alpha = 0.1
+    alpha = 0.5
 
     while alpha >= 0.0001:
         start_weights = np.copy(START_WEIGHTS)
@@ -84,8 +84,6 @@ def task_4():
 
     train_output_bipolar = np.copy(TRAIN_OUTPUT)
     train_output_bipolar[train_output_bipolar == 0] = -1
-    train_input_bipolar = np.copy(TRAIN_INPUT)
-    train_input_bipolar[train_input_bipolar == 0] = -1
 
     start_weights = np.copy(START_WEIGHTS)
     p = PerceptronBipolar(alpha=ALPHA, weights=start_weights, use_bias=True)
