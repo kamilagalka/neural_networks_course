@@ -36,7 +36,7 @@ def task_1():
         p = Perceptron(ALPHA, start_weights, use_bias=False)
         p.train(TRAIN_INPUT, TRAIN_OUTPUT)
 
-        logging.info(f"Training finished in {p.iteration_counter} iterations for theta: {theta}")
+        logging.info(f"Training finished in {p.iteration_counter} iterations for theta: {round(theta, 2)}")
         theta += 0.05
 
 
@@ -53,7 +53,7 @@ def task_2():
         p.train(TRAIN_INPUT, TRAIN_OUTPUT)
 
         logging.info(
-            f"Training finished in {p.iteration_counter} iterations for start weights in range: {range_min} - {range_max}")
+            f"Training finished in {p.iteration_counter} iterations for start weights in range: {round(range_min, 2)} - {round(range_max, 2)}")
 
         range_min += range_step
         range_max -= range_step
