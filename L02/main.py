@@ -7,7 +7,8 @@ import random
 logging.basicConfig(level=logging.INFO)
 
 TRAIN_INPUT_SET_SIZE = 1
-ALPHA = 0.1
+MI = 0.1
+EPSILON = 0.1
 
 TRAIN_INPUT = []
 TRAIN_OUTPUT = []
@@ -25,7 +26,7 @@ for _ in range(TRAIN_INPUT_SET_SIZE):
 START_WEIGHTS = np.array([random.uniform(-0.1, 0.1) for _ in range(3)])
 
 if __name__ == '__main__':
-    a = Adaline(mi=0.1, weights=START_WEIGHTS, epsilon=0.2)
+    a = Adaline(mi=MI, weights=START_WEIGHTS, epsilon=EPSILON)
 
     a.train(TRAIN_INPUT, TRAIN_OUTPUT)
 
