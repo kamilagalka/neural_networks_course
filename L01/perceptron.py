@@ -12,13 +12,13 @@ class Perceptron:
         self.iteration_counter = 1
         self.use_bias = use_bias
 
-    def _activation_func(self, x):
+    def _full_arousal(self, x):
         if self.use_bias:
             return np.dot(x, self.weights[:-1]) + self.weights[-1]
 
         return np.dot(x, self.weights[:-1])
 
-    def _get_perceptron_output(self, z):
+    def _activation_func(self, z):
         if self.use_bias:
             return 1 if z > 0 else 0
         return 1 if z > self.weights[-1] else 0
@@ -39,20 +39,20 @@ class Perceptron:
             no_errors = True
 
             for x, y in zip(train_input, train_output):
-                z = self._activation_func(x)
-                perceptron_output = self._get_perceptron_output(z)
+                z = self._full_arousal(x)
+                perceptron_output = self._activation_func(z)
                 perceptron_error = self._get_error(expected=y, actual=perceptron_output)
                 self._adjust_weights(error=perceptron_error, input_data=x)
                 if perceptron_error != 0:
                     no_errors = False
 
     def predict(self, input_vector):
-        z = self._activation_func(input_vector)
-        return self._get_perceptron_output(z)
+        z = self._full_arousal(input_vector)
+        return self._activation_func(z)
 
 
 class PerceptronBipolar(Perceptron):
-    def _get_perceptron_output(self, z):
+    def _activation_func(self, z):
         if self.use_bias:
             return 1 if z > 0 else -1
         return 1 if z > self.weights[-1] else -1
