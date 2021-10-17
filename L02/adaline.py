@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO)
 class Adaline:
     def __init__(self, mi, weights, epsilon):
         self.mi = mi
-        self.weights = weights  # Usage assumption: bias weight / theta value as the last weight
+        self.weights = weights  # Usage assumption: bias weight as the last weight
         self.iteration_counter = 0
         self.desired_epsilon = epsilon
 
@@ -40,7 +40,7 @@ class Adaline:
 
             epsilon = deltas / L
 
-            logging.info(epsilon)
+            # logging.info(epsilon)
 
     def predict(self, input_vector):
         z = self._full_arousal(input_vector)
