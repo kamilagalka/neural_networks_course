@@ -74,6 +74,7 @@ class MLP:
                         np.dot(batch_errors_reshaped, batch_activations_reshaped))
                     layer.biases = layer.biases - self.learning_factor / batch_size * batch_errors_sum
 
+            # calc accuracy
             s = 0
             for ba, ex in batches:
                 for t, e in zip(ba, ex):
