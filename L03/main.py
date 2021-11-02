@@ -3,7 +3,7 @@ import logging
 import idx2numpy
 import matplotlib.pyplot as plt  # noqa
 
-from mlp import MLP
+from mlp_batch import MLP, Layer, init_weights
 
 logging.basicConfig(level=logging.INFO)
 
@@ -25,21 +25,44 @@ if __name__ == "__main__":
     TRAINING_DATA = read_data(data_file_names["train_data"])
     TRAINING_LABELS = read_data(data_file_names["train_labels"])
 
-    # pixels = TRAINING_DATA[0]
-    # plt.imshow(pixels, cmap='gray')
-    # plt.show()
-
     image_input_vector_size = len(TRAINING_DATA[0].flatten())
-    logging.info(image_input_vector_size)
+    output_size = 10
+    loc = 0
+    scale = 0.1
+
+    layers = [
+        Layer(MLP.activation_func_sigm, MLP.activation_func_sigm_derivative,
+              init_weights(loc, scale, (image_input_vector_size, 15)), init_weights(loc, scale, (15,))),
+        Layer(MLP.activation_func_sigm, MLP.activation_func_sigm_derivative,
+              init_weights(loc, scale, (15, 20)), init_weights(loc, scale, (20,))),
+        Layer(MLP.softmax, MLP.softmax,
+              init_weights(loc, scale, (20, output_size)), init_weights(loc, scale, (10,))),
+    ]
 
     mlp = MLP(
-        starting_neurons_count=image_input_vector_size,
-        layers_count=2,
-        output_labels_count=10,
-        learning_factor=None
+        layers=layers,
+        learning_factor=1,
     )
+    pixels = TRAINING_DATA[55000]
+    plt.imshow(pixels, cmap='gray')
+    plt.show()
 
-    predicted_labels = mlp.train(TRAINING_DATA, TRAINING_LABELS)
-    logging.info(predicted_labels)
-    logging.info(len(predicted_labels))
-    logging.info(sum(predicted_labels))
+    pixels = TRAINING_DATA[55040]
+    plt.imshow(pixels, cmap='gray')
+    plt.show()
+
+    pixels = TRAINING_DATA[56000]
+    plt.imshow(pixels, cmap='gray')
+    plt.show()
+
+    mlp.train(TRAINING_DATA[:50000], TRAINING_LABELS[:50000])
+
+
+    prediction = mlp.predict(TRAINING_DATA[55000])
+    logging.info(f"{prediction} <-> {TRAINING_LABELS[55000]}")
+
+    prediction = mlp.predict(TRAINING_DATA[55040])
+    logging.info(f"{prediction} <-> {TRAINING_LABELS[55040]}")
+
+    prediction = mlp.predict(TRAINING_DATA[56000])
+    logging.info(f"{prediction} <-> {TRAINING_LABELS[56000]}")
