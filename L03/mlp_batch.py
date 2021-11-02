@@ -25,9 +25,7 @@ class MLP:
 
         for epoch_id in range(num_of_epoch):
             logging.info(f"Epoch: {epoch_id}")
-            bi = 0
             for batch, batch_expected_output in batches:
-                # logging.info(f"batch shape: {batch.shape}, beo: {batch_expected_output.shape}")
                 batch_activations = []
                 batch_errors = []
 
@@ -55,7 +53,6 @@ class MLP:
                         errors.append(last_error)
 
                     errors.reverse()
-                    # logging.info(f"errors shape {len(errors)}")
 
                     batch_errors.append(errors)
                     batch_activations.append(activations)
@@ -76,7 +73,6 @@ class MLP:
                     layer.weights = layer.weights - self.learning_factor / batch_size * np.transpose(
                         np.dot(batch_errors_reshaped, batch_activations_reshaped))
                     layer.biases = layer.biases - self.learning_factor / batch_size * batch_errors_sum
-                bi += 1
 
             s = 0
             for ba, ex in batches:
