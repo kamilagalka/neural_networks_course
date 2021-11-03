@@ -111,6 +111,11 @@ class MLP:
         return -(expected_output - actual_output) * (np.transpose(a))
 
     @staticmethod
+    def _full_excitation(X, weights, biases):
+        Z = np.dot(X, weights) + biases
+        return Z
+
+    @staticmethod
     def activation_func_sigm(z):
         a = 1 / (1 + np.exp(-z))
         return a
@@ -120,19 +125,20 @@ class MLP:
         return (1 - MLP.activation_func_sigm(z)) * MLP.activation_func_sigm(z)
 
     @staticmethod
-    def _activation_func_tanh(z):
-        a = 2 / (1 + np.exp(-2 * z))
-        return a
+    def activation_func_tanh(z):
+        return np.tanh(z)
 
     @staticmethod
-    def _activation_func_relu(z):
-        a = 0 if z < 0 else z
-        return a
+    def activation_func_tanh_derivative(a):
+        return 1 - np.square(MLP.activation_func_tanh(a))
 
     @staticmethod
-    def _full_excitation(X, weights, biases):
-        Z = np.dot(X, weights) + biases
-        return Z
+    def activation_func_relu(z):
+        return np.maximum(z, 0)
+
+    @staticmethod
+    def activation_func_relu_derivative(z):
+        return np.array(list(map(lambda x: 0 if x <= 0 else 1, z)))
 
     def predict(self, image):
         data = image.flatten()
