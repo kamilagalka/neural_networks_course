@@ -75,6 +75,13 @@ class MLP:
                         np.dot(batch_errors_reshaped, batch_activations_reshaped))
                     layer.biases = layer.biases - self.learning_factor / batch_size * batch_errors_sum
 
+            # save weights to csv
+            for layer_id, layer in enumerate(self.layers):
+                weights_to_csv = np.asarray(layer.weights)
+                biases_to_csv = np.asarray(layer.biases)
+                np.savetxt(f"weights/weights_{layer_id}.csv", weights_to_csv, delimiter=",")
+                np.savetxt(f"weights/biases_{layer_id}.csv", biases_to_csv, delimiter=",")
+
             # calc accuracy
             s = 0
             for ba, ex in validation_batches:

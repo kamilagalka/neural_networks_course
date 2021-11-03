@@ -4,6 +4,7 @@ import idx2numpy
 import matplotlib.pyplot as plt  # noqa
 
 from mlp_batch import MLP, Layer, init_weights
+import numpy as np
 
 logging.basicConfig(level=logging.INFO)
 
@@ -47,6 +48,15 @@ if __name__ == "__main__":
         Layer(MLP.softmax, MLP.softmax,
               init_weights(loc, scale, (20, output_size)), init_weights(loc, scale, (10,))),
     ]
+    #
+    # layers = [
+    #     Layer(MLP.activation_func_sigm, MLP.activation_func_sigm_derivative,
+    #           np.loadtxt('weights/weights_0.csv', delimiter=','), np.loadtxt('weights/biases_0.csv', delimiter=',')),
+    #     Layer(MLP.activation_func_sigm, MLP.activation_func_sigm_derivative,
+    #           np.loadtxt('weights/weights_1.csv', delimiter=','), np.loadtxt('weights/biases_1.csv', delimiter=',')),
+    #     Layer(MLP.softmax, MLP.softmax,
+    #           np.loadtxt('weights/weights_2.csv', delimiter=','), np.loadtxt('weights/biases_2.csv', delimiter=',')),
+    # ]
 
     mlp = MLP(
         layers=layers,
