@@ -20,8 +20,9 @@ class MLP:
         self.layers = layers
         self.learning_factor = learning_factor
 
-    def train(self, training_data, training_labels, num_of_epoch=10, batch_size=7):
+    def train(self, training_data, training_labels, validation_data, validation_labels, num_of_epoch=10, batch_size=7):
         batches = self.get_training_batches(training_data, training_labels, batch_size)
+        validation_batches = self.get_training_batches(validation_data, validation_labels, batch_size)
 
         for epoch_id in range(num_of_epoch):
             logging.info(f"Epoch: {epoch_id}")
@@ -76,14 +77,14 @@ class MLP:
 
             # calc accuracy
             s = 0
-            for ba, ex in batches:
+            for ba, ex in validation_batches:
                 for t, e in zip(ba, ex):
                     data = t
                     for layer in self.layers:
                         tot_stim = self._full_excitation(data, layer.weights, layer.biases)
                         data = layer.activation_func(tot_stim)
                     s = s + (self.softmax(data).tolist().index(max(self.softmax(data))) == e.tolist().index(max(e)))
-            logging.info(f"ACC: {s / len(training_data)}")
+            logging.info(f"ACC: {s / len(validation_data)}")
 
     @staticmethod
     def softmax(Z):
@@ -149,3 +150,15 @@ class MLP:
                         np.concatenate([res_training_outputs[i:i + batch_size]])))
 
         return res
+
+    def normalize_validation_data(self, validation_data, validation_labels):
+        res_validation_data = []
+        res_validation_outputs = []
+
+        for matrix, output in zip(validation_data, validation_labels):
+            res_validation_data.append(matrix.flatten() / 255)
+            expected_labels_one_in_n = np.zeros(10)  # output labels count = 10
+            expected_labels_one_in_n[output] = 1
+            res_validation_outputs.append(expected_labels_one_in_n)
+
+        return zip(res_validation_data, res_validation_outputs)

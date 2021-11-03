@@ -22,10 +22,19 @@ data_file_names = {
 }
 
 if __name__ == "__main__":
-    TRAINING_DATA = read_data(data_file_names["train_data"])
-    TRAINING_LABELS = read_data(data_file_names["train_labels"])
+    INPUT_DATA = read_data(data_file_names["train_data"])
+    INPUT_LABELS = read_data(data_file_names["train_labels"])
 
-    image_input_vector_size = len(TRAINING_DATA[0].flatten())
+    TRAINING_DATA = INPUT_DATA[:40000]
+    TRAINING_LABELS = INPUT_LABELS[:40000]
+
+    VALIDATION_DATA = INPUT_DATA[40000:50000]
+    VALIDATION_LABELS = INPUT_LABELS[40000:50000]
+
+    TEST_DATA = INPUT_DATA[50000:]
+    TEST_LABELS = INPUT_LABELS[50000:]
+
+    image_input_vector_size = len(INPUT_DATA[0].flatten())
     output_size = 10
     loc = 0
     scale = 0.1
@@ -43,26 +52,15 @@ if __name__ == "__main__":
         layers=layers,
         learning_factor=1,
     )
-    pixels = TRAINING_DATA[55000]
+    mlp.train(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS)
+
+    pixels = INPUT_DATA[55000]
     plt.imshow(pixels, cmap='gray')
     plt.show()
 
-    pixels = TRAINING_DATA[55040]
-    plt.imshow(pixels, cmap='gray')
-    plt.show()
-
-    pixels = TRAINING_DATA[56000]
-    plt.imshow(pixels, cmap='gray')
-    plt.show()
-
-    mlp.train(TRAINING_DATA[:50000], TRAINING_LABELS[:50000])
-
-
-    prediction = mlp.predict(TRAINING_DATA[55000])
-    logging.info(f"{prediction} <-> {TRAINING_LABELS[55000]}")
-
-    prediction = mlp.predict(TRAINING_DATA[55040])
-    logging.info(f"{prediction} <-> {TRAINING_LABELS[55040]}")
-
-    prediction = mlp.predict(TRAINING_DATA[56000])
-    logging.info(f"{prediction} <-> {TRAINING_LABELS[56000]}")
+    for i in [55000, 56000, 55040, 59999, 54322, 55555, 51234]:
+        prediction = mlp.predict(INPUT_DATA[i])
+        logging.info(f"{prediction} <-> {INPUT_LABELS[i]}")
+        pixels = INPUT_DATA[i]
+        plt.imshow(pixels, cmap='gray')
+        plt.show()
