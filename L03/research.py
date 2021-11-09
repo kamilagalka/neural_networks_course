@@ -67,11 +67,9 @@ def task_b():
     logging.info("================= TASK B =================")
     layers = [
         Layer(MLP.activation_func_sigm, MLP.activation_func_sigm_derivative,
-              init_weights(loc, scale, (image_input_vector_size, 15)), init_weights(loc, scale, (15,))),
-        Layer(MLP.activation_func_sigm, MLP.activation_func_sigm_derivative,
-              init_weights(loc, scale, (15, 20)), init_weights(loc, scale, (20,))),
+              init_weights(loc, scale, (image_input_vector_size, 100)), init_weights(loc, scale, (100,))),
         Layer(MLP.softmax, MLP.softmax,
-              init_weights(loc, scale, (20, output_size)), init_weights(loc, scale, (10,))),
+              init_weights(loc, scale, (100, output_size)), init_weights(loc, scale, (10,))),
     ]
 
     for learning_factor in [0.01, 0.1, 0.5, 1, 10]:
@@ -89,18 +87,16 @@ def task_c():
 
     layers = [
         Layer(MLP.activation_func_sigm, MLP.activation_func_sigm_derivative,
-              init_weights(loc, scale, (image_input_vector_size, 15)), init_weights(loc, scale, (15,))),
-        Layer(MLP.activation_func_sigm, MLP.activation_func_sigm_derivative,
-              init_weights(loc, scale, (15, 20)), init_weights(loc, scale, (20,))),
+              init_weights(loc, scale, (image_input_vector_size, 100)), init_weights(loc, scale, (100,))),
         Layer(MLP.softmax, MLP.softmax,
-              init_weights(loc, scale, (20, output_size)), init_weights(loc, scale, (10,))),
+              init_weights(loc, scale, (100, output_size)), init_weights(loc, scale, (10,))),
     ]
 
-    for bs in [1, 5, 10, 50, 100, 1000, 20000]:
+    for bs in [5, 10, 100, 1000, 10000]:
         logging.info(f"-------------- Current batch size: {bs}")
         mlp = MLP(
             layers=layers.copy(),
-            learning_factor=0.1,
+            learning_factor=0.5,
         )
         mlp.train(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS, batch_size=bs)
 
@@ -109,21 +105,19 @@ def task_d():
     # d. wpływ inicjalizacji wartości wag początkowych
     logging.info("================= TASK D =================")
 
-    for loc in [-1, 0, 1]:
-        for scale in [0.1, 0.5, 1, 10]:
+    for loc in [0, 1]:
+        for scale in [0.1, 1, 10]:
             logging.info(f"-------------- Current loc: {loc}, current scale: {scale}")
             layers = [
                 Layer(MLP.activation_func_sigm, MLP.activation_func_sigm_derivative,
-                      init_weights(loc, scale, (image_input_vector_size, 15)), init_weights(loc, scale, (15,))),
-                Layer(MLP.activation_func_sigm, MLP.activation_func_sigm_derivative,
-                      init_weights(loc, scale, (15, 20)), init_weights(loc, scale, (20,))),
+                      init_weights(loc, scale, (image_input_vector_size, 100)), init_weights(loc, scale, (100,))),
                 Layer(MLP.softmax, MLP.softmax,
-                      init_weights(loc, scale, (20, output_size)), init_weights(loc, scale, (10,))),
+                      init_weights(loc, scale, (100, output_size)), init_weights(loc, scale, (10,))),
             ]
 
             mlp = MLP(
                 layers=layers,
-                learning_factor=0.1,
+                learning_factor=0.5,
             )
             mlp.train(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS)
 
@@ -133,9 +127,8 @@ def task_e():
     logging.info("================= TASK E =================")
 
     for activation_func, activation_func_der in zip(
-            [MLP.activation_func_sigm, MLP.activation_func_tanh, MLP.activation_func_relu],
-            [MLP.activation_func_sigm_derivative, MLP.activation_func_tanh_derivative,
-             MLP.activation_func_relu_derivative]):
+            [MLP.activation_func_relu],
+            [MLP.activation_func_relu_derivative]):
         logging.info(f"--------------")
         layers = [
             Layer(activation_func, activation_func_der,
@@ -148,14 +141,14 @@ def task_e():
 
         mlp = MLP(
             layers=layers,
-            learning_factor=0.1,
+            learning_factor=0.5,
         )
         mlp.train(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS)
 
 
 if __name__ == '__main__':
-    task_a()
-    task_b()
-    task_c()
-    task_d()
+    # task_a()
+    # task_b()
+    # task_c()
+    # task_d()
     task_e()

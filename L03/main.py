@@ -26,14 +26,14 @@ if __name__ == "__main__":
     INPUT_DATA = read_data(data_file_names["train_data"])
     INPUT_LABELS = read_data(data_file_names["train_labels"])
 
-    TRAINING_DATA = INPUT_DATA[:40000]
-    TRAINING_LABELS = INPUT_LABELS[:40000]
+    TRAINING_DATA = INPUT_DATA[:50000]
+    TRAINING_LABELS = INPUT_LABELS[:50000]
 
-    VALIDATION_DATA = INPUT_DATA[40000:50000]
-    VALIDATION_LABELS = INPUT_LABELS[40000:50000]
+    VALIDATION_DATA = INPUT_DATA[50000:]
+    VALIDATION_LABELS = INPUT_LABELS[50000:]
 
-    TEST_DATA = INPUT_DATA[50000:]
-    TEST_LABELS = INPUT_LABELS[50000:]
+    # TEST_DATA = INPUT_DATA[50000:]
+    # TEST_LABELS = INPUT_LABELS[50000:]
 
     image_input_vector_size = len(INPUT_DATA[0].flatten())
     output_size = 10
@@ -42,11 +42,9 @@ if __name__ == "__main__":
 
     layers = [
         Layer(MLP.activation_func_sigm, MLP.activation_func_sigm_derivative,
-              init_weights(loc, scale, (image_input_vector_size, 15)), init_weights(loc, scale, (15,))),
-        Layer(MLP.activation_func_sigm, MLP.activation_func_sigm_derivative,
-              init_weights(loc, scale, (15, 20)), init_weights(loc, scale, (20,))),
+              init_weights(loc, scale, (image_input_vector_size, 784)), init_weights(loc, scale, (784,))),
         Layer(MLP.softmax, MLP.softmax,
-              init_weights(loc, scale, (20, output_size)), init_weights(loc, scale, (10,))),
+              init_weights(loc, scale, (784, output_size)), init_weights(loc, scale, (10,))),
     ]
     #
     # layers = [
@@ -60,17 +58,13 @@ if __name__ == "__main__":
 
     mlp = MLP(
         layers=layers,
-        learning_factor=1,
+        learning_factor=0.5,
     )
     mlp.train(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS)
 
-    pixels = INPUT_DATA[55000]
-    plt.imshow(pixels, cmap='gray')
-    plt.show()
-
-    for i in [55000, 56000, 55040, 59999, 54322, 55555, 51234]:
-        prediction = mlp.predict(INPUT_DATA[i])
-        logging.info(f"{prediction} <-> {INPUT_LABELS[i]}")
-        pixels = INPUT_DATA[i]
-        plt.imshow(pixels, cmap='gray')
-        plt.show()
+    # for i in [55000, 56000, 55040, 59999, 54322, 55555, 51234]:
+    #     prediction = mlp.predict(INPUT_DATA[i])
+    #     logging.info(f"{prediction} <-> {INPUT_LABELS[i]}")
+    #     pixels = INPUT_DATA[i]
+    #     plt.imshow(pixels, cmap='gray')
+    #     plt.show()
