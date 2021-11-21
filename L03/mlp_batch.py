@@ -4,8 +4,18 @@ import logging
 import numpy as np
 
 
-def init_weights(loc, scale, size):
-    return np.random.normal(loc, scale, size)
+def init_weights(weights_range, size, weight_init_method):
+    if weight_init_method == "":
+        weights = np.random.randn(*size) * weights_range
+        return weights
+
+    if weight_init_method == "Xavier":
+        weights = np.random.randn(*size) * np.sqrt(2 / (sum(size)))
+        return weights
+
+    if weight_init_method == "He":
+        weights = np.random.randn(*size) * np.sqrt(2 / size[0])
+        return weights
 
 
 class Layer:
@@ -252,9 +262,9 @@ class MLP:
         layer.bias_accumulators = decay_rate * layer.bias_accumulators + (1 - decay_rate) * bias_gradients ** 2
 
         layer.weights -= self.learning_factor / batch_size * weight_gradients / (
-                    np.sqrt(layer.weight_accumulators) + epsilon)
+                np.sqrt(layer.weight_accumulators) + epsilon)
         layer.biases -= self.learning_factor / batch_size * bias_gradients / (
-                    np.sqrt(layer.bias_accumulators) + epsilon)
+                np.sqrt(layer.bias_accumulators) + epsilon)
 
     def adam(self, layer, weight_gradients, bias_gradients, batch_size):
         epsilon = 1e-8
