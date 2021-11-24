@@ -1,5 +1,7 @@
 import logging
 import copy
+import multiprocessing
+
 import idx2numpy
 import matplotlib.pyplot as plt  # noqa
 
@@ -22,15 +24,76 @@ data_file_names = {
     "test_labels": "data/t10k-labels.idx1-ubyte"
 }
 
+
+def task_no_optimizer(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS, layers):
+    # logging.info("============NO OPTIMIZER==================")
+
+    mlp = MLP(
+        layers=copy.deepcopy(layers),
+        learning_factor=0.1,
+    )
+    mlp.train(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS, optimizer=None)
+
+
+def task_momentum(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS, layers):
+    # logging.info("============MOMENTUM==================")
+
+    mlp = MLP(
+        layers=copy.deepcopy(layers),
+        learning_factor=0.1,
+    )
+    mlp.train(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS, optimizer='momentum')
+
+
+def task_nesterov(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS, layers):
+    # logging.info("============NESTEROV==================")
+
+    mlp = MLP(
+        layers=copy.deepcopy(layers),
+        learning_factor=0.1,
+    )
+    mlp.train(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS, optimizer='nesterov')
+
+
+def task_adagrad(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS, layers):
+    # logging.info("============ADAGRAD==================")
+
+    mlp = MLP(
+        layers=copy.deepcopy(layers),
+        learning_factor=0.01,
+    )
+    mlp.train(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS, optimizer='adagrad')
+
+
+def task_adadelta(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS, layers):
+    # logging.info("============ADADELTA==================")
+
+    mlp = MLP(
+        layers=copy.deepcopy(layers),
+        learning_factor=0.01,
+    )
+    mlp.train(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS, optimizer='adadelta')
+
+
+def task_adam(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS, layers):
+    # logging.info("============ADAM==================")
+
+    mlp = MLP(
+        layers=copy.deepcopy(layers),
+        learning_factor=0.01,
+    )
+    mlp.train(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS, optimizer='adam')
+
+
 if __name__ == "__main__":
     INPUT_DATA = read_data(data_file_names["train_data"])
     INPUT_LABELS = read_data(data_file_names["train_labels"])
 
-    TRAINING_DATA = INPUT_DATA[:2000]
-    TRAINING_LABELS = INPUT_LABELS[:2000]
+    TRAINING_DATA = INPUT_DATA[:20000]
+    TRAINING_LABELS = INPUT_LABELS[:20000]
 
-    VALIDATION_DATA = INPUT_DATA[5000:7000]
-    VALIDATION_LABELS = INPUT_LABELS[5000:7000]
+    VALIDATION_DATA = INPUT_DATA[45000:]
+    VALIDATION_LABELS = INPUT_LABELS[45000:]
 
     # TEST_DATA = INPUT_DATA[50000:]
     # TEST_LABELS = INPUT_LABELS[50000:]
@@ -41,16 +104,40 @@ if __name__ == "__main__":
     scale = 0.1
 
     layers = [
-        Layer(MLP.activation_func_sigm, MLP.activation_func_sigm_derivative,
-              init_weights(scale, (image_input_vector_size, 784), ""), init_weights(scale, (784,), "")),
-        Layer(MLP.activation_func_sigm, MLP.activation_func_sigm_derivative,
-              init_weights(scale, (784, 100), ""), init_weights(scale, (100,), "")),
-        Layer(MLP.activation_func_sigm, MLP.activation_func_sigm_derivative,
-              init_weights(scale, (100, 50), ""), init_weights(scale, (50,), "")),
+        Layer(MLP.activation_func_relu, MLP.activation_func_relu_derivative,
+              init_weights(scale, (image_input_vector_size, 100), ""), init_weights(scale, (100,), "")),
+        Layer(MLP.activation_func_relu, MLP.activation_func_relu_derivative,
+              init_weights(scale, (100, 100), ""), init_weights(scale, (100,), "")),
         Layer(MLP.softmax, MLP.softmax,
-              init_weights(scale, (50, output_size), ""), init_weights(scale, (output_size, ), "")),
+              init_weights(scale, (100, output_size), ""), init_weights(scale, (output_size,), "")),
     ]
-    #
+
+    # p_no_optimizer = multiprocessing.Process(target=task_no_optimizer, args=(
+    #     TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS, layers,))
+    # p_momentum = multiprocessing.Process(target=task_momentum, args=(
+    #     TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS, layers,))
+    # p_nesterov = multiprocessing.Process(target=task_nesterov, args=(
+    #     TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS, layers,))
+    p_adagrad = multiprocessing.Process(target=task_adagrad, args=(
+        TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS, layers,))
+    # p_adadelta = multiprocessing.Process(target=task_adadelta, args=(
+    #     TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS, layers,))
+    # p_adam = multiprocessing.Process(target=task_adam, args=(
+    #     TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS, layers,))
+    # p_nesterov.start()
+    # p_momentum.start()
+    # p_no_optimizer.start()
+    p_adagrad.start()
+    # p_adadelta.start()
+    # p_adam.start()
+    # p_nesterov.join()
+    # p_momentum.join()
+    # p_no_optimizer.join()
+    p_adagrad.join()
+    # p_adadelta.join()
+    # p_adam.join()
+
+
     # layers = [
     #     Layer(MLP.activation_func_sigm, MLP.activation_func_sigm_derivative,
     #           np.loadtxt('weights/weights_0.csv', delimiter=','), np.loadtxt('weights/biases_0.csv', delimiter=',')),
@@ -60,47 +147,47 @@ if __name__ == "__main__":
     #           np.loadtxt('weights/weights_2.csv', delimiter=','), np.loadtxt('weights/biases_2.csv', delimiter=',')),
     # ]
 
-    logging.info("============STANDARD==================")
-
-    mlp = MLP(
-        layers=copy.deepcopy(layers),
-        learning_factor=0.5,
-    )
-    mlp.train(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS)
-    
-    logging.info("============XAVIER==================")
-    
-    layers = [
-        Layer(MLP.activation_func_sigm, MLP.activation_func_sigm_derivative,
-              init_weights(scale, (image_input_vector_size, 784), "Xavier"), init_weights(scale, (784,), "Xavier")),
-        Layer(MLP.activation_func_sigm, MLP.activation_func_sigm_derivative,
-              init_weights(scale, (784, 100), "Xavier"), init_weights(scale, (100,), "Xavier")),
-        Layer(MLP.softmax, MLP.softmax,
-              init_weights(scale, (100, output_size), "Xavier"), init_weights(scale, (output_size, ), "Xavier")),
-    ]
-
-    mlp = MLP(
-        layers=copy.deepcopy(layers),
-        learning_factor=0.5,
-    )
-    mlp.train(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS)
-    
-    logging.info("============HE==================")
-    
-    layers = [
-        Layer(MLP.activation_func_sigm, MLP.activation_func_sigm_derivative,
-              init_weights(scale, (image_input_vector_size, 784), "He"), init_weights(scale, (784,), "He")),
-        Layer(MLP.activation_func_sigm, MLP.activation_func_sigm_derivative,
-              init_weights(scale, (784, 100), "He"), init_weights(scale, (100,), "He")),
-        Layer(MLP.softmax, MLP.softmax,
-              init_weights(scale, (100, output_size), "He"), init_weights(scale, (output_size, ), "He")),
-    ]
-
-    mlp = MLP(
-        layers=copy.deepcopy(layers),
-        learning_factor=0.5,
-    )
-    mlp.train(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS)
+    # logging.info("============STANDARD==================")
+    #
+    # mlp = MLP(
+    #     layers=copy.deepcopy(layers),
+    #     learning_factor=0.01,
+    # )
+    # mlp.train(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS, optimizer='adam')
+    #
+    # logging.info("============XAVIER==================")
+    #
+    # layers = [
+    #     Layer(MLP.activation_func_relu, MLP.activation_func_relu_derivative,
+    #           init_weights(scale, (image_input_vector_size, 784), "Xavier"), init_weights(scale, (784,), "Xavier")),
+    #     Layer(MLP.activation_func_relu, MLP.activation_func_relu_derivative,
+    #           init_weights(scale, (784, 784), "Xavier"), init_weights(scale, (784,), "Xavier")),
+    #     Layer(MLP.softmax, MLP.softmax,
+    #           init_weights(scale, (784, output_size), "Xavier"), init_weights(scale, (output_size,), "Xavier")),
+    # ]
+    #
+    # mlp = MLP(
+    #     layers=copy.deepcopy(layers),
+    #     learning_factor=0.01,
+    # )
+    # mlp.train(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS, optimizer='adam')
+    #
+    # logging.info("============HE==================")
+    # 
+    # layers = [
+    #     Layer(MLP.activation_func_relu, MLP.activation_func_relu_derivative,
+    #           init_weights(scale, (image_input_vector_size, 784), "He"), init_weights(scale, (784,), "He")),
+    #     Layer(MLP.activation_func_relu, MLP.activation_func_relu_derivative,
+    #           init_weights(scale, (784, 784), "He"), init_weights(scale, (784,), "He")),
+    #     Layer(MLP.softmax, MLP.softmax,
+    #           init_weights(scale, (784, output_size), "He"), init_weights(scale, (output_size,), "He")),
+    # ]
+    # 
+    # mlp = MLP(
+    #     layers=copy.deepcopy(layers),
+    #     learning_factor=0.01,
+    # )
+    # mlp.train(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS, optimizer='adam')
 
     # logging.info("============MOMENTUM==================")
     #
@@ -119,7 +206,7 @@ if __name__ == "__main__":
     #     learning_factor=0.1,
     # )
     # mlp.train(TRAINING_DATA, TRAINING_LABELS, VALIDATION_DATA, VALIDATION_LABELS, optimizer='nesterov')
-    #
+
     # logging.info("============ADAGRAD==================")
     #
     # mlp = MLP(

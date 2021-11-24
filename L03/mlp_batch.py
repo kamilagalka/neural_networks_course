@@ -1,6 +1,8 @@
 import copy
+import os
+import csv
 import logging
-
+import time
 import numpy as np
 
 
@@ -38,13 +40,14 @@ class MLP:
         self.layers = layers
         self.learning_factor = learning_factor
 
-    def train(self, training_data, training_labels, validation_data, validation_labels, num_of_epoch=4, batch_size=7,
+    def train(self, training_data, training_labels, validation_data, validation_labels, num_of_epoch=10, batch_size=100,
               optimizer=None):
         batches = self.get_training_batches(training_data, training_labels, batch_size)
         validation_batches = self.get_training_batches(validation_data, validation_labels, batch_size)
-
+        rows = [list(range(num_of_epoch)), [], []]
         for epoch_id in range(num_of_epoch):
-            logging.info(f"Epoch: {epoch_id}")
+            start = time.time()
+            # logging.info(f"Epoch ({optimizer}): {epoch_id}")
             for batch, batch_expected_output in batches:
                 batch_activations = []
                 batch_errors = []
@@ -57,6 +60,7 @@ class MLP:
                     # feedforward
                     for layer in self.layers:
                         excitation = self._full_excitation(a, layer.weights, layer.biases)
+                        excitations.append(excitation)
                         excitations.append(excitation)
                         a = layer.activation_func(excitation)
                         activations.append(a)
@@ -120,6 +124,8 @@ class MLP:
             #     np.savetxt(f"weights/weights_{layer_id}.csv", weights_to_csv, delimiter=",")
             #     np.savetxt(f"weights/biases_{layer_id}.csv", biases_to_csv, delimiter=",")
 
+            train_time = time.time() - start
+            rows[2].append(train_time)
             # calc accuracy
             s = 0
             for ba, ex in validation_batches:
@@ -128,8 +134,19 @@ class MLP:
                     for layer in self.layers:
                         tot_stim = self._full_excitation(data, layer.weights, layer.biases)
                         data = layer.activation_func(tot_stim)
+                    if max(self.softmax(data)) is None:
+                        logging.info(f"HEREEE: {max(self.softmax(data))}")
                     s = s + (self.softmax(data).tolist().index(max(self.softmax(data))) == e.tolist().index(max(e)))
-            logging.info(f"ACC: {s / len(validation_data)}")
+            logging.info(f"Epoch: {epoch_id}, ACC ({optimizer}): {s / len(validation_data)}, time: {train_time}")
+            rows[1].append(s / len(validation_data))
+
+        if not os.path.exists('res'):
+            os.makedirs('res')
+
+        with open(fr"res/{optimizer}.csv", "w+", newline='') as f:
+            write = csv.writer(f)
+            # write.writerow([optimizer])
+            write.writerows(zip(rows[1], rows[2]))
 
     @staticmethod
     def softmax(Z):
@@ -278,5 +295,5 @@ class MLP:
 
         layer.weights -= self.learning_factor / batch_size * layer.weight_accumulators / (
                 np.sqrt(layer.v_weight_accumulators) + epsilon)
-        layer.weights -= self.learning_factor / batch_size * layer.bias_accumulators / (
+        layer.biases -= self.learning_factor / batch_size * layer.bias_accumulators / (
                 np.sqrt(layer.v_bias_accumulators) + epsilon)
