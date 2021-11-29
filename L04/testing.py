@@ -237,7 +237,7 @@ if __name__ == '__main__':
         # print(f'CNN with shift time: {cnn_shift_times[-1]}')
         # print(f'CNN with shearing error: {cnn_shearing_errors[-1]}')
         # print(f'CNN with shearing time: {cnn_shearing_times[-1]}')
-        print(f'CNN worsen rotation: {cnn_worsen_errors[-1]}')
+        print(f'CNN worsen error: {cnn_worsen_errors[-1]}')
         print(f'CNN worsen time: {cnn_worsen_times[-1]}')
 
     print("---------------------------------------------------------------")
